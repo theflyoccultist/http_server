@@ -35,11 +35,27 @@ curl -v http://localhost:8080
 - Basic HTTP request handling
 - It just returns "Pwat Pwat" if the request is a GET request
 
-## Future Improvements
+## Future Features
 
-- This is basically a template that can be improved in many ways. It can be reused to create web applications, or DevOps tools.
+I am aiming for a "live server" equivalent and plan for additional features:
+
+- Serving Static Files
+  - Test if the server can serve files from a specified directory (e.g., HTML, CSS, and JavaScript files).
+  - Verify that the server handles paths correctly (e.g., index.html for /).
+
+- Hot Reloading
+Test if the server detects file changes and updates responses dynamically.
+
+- Error Pages
+Verify that the server serves custom error pages (e.g., 404.html for not found errors).
+
+- Concurrency
+Test how the server handles multiple concurrent requests.
+
+- Cross-Browser Compatibility
+Test the server's behavior with requests from different browsers or tools (e.g., curl, Postman, Chrome).
+
 
 ## License
 
 This project is licensed under the MIT License.
-# http_server
