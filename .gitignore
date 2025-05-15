@@ -1,2 +1,4 @@
+# ignore compiled binaries
 server.o
 main.o
+http_server

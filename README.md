@@ -21,7 +21,7 @@ make
 To run the server, use the following command:
 
 ```sh
-./http_server.exe
+./http_server
 ```
 
 In a separate terminal, you can use the following command to test the server:
