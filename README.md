@@ -1,7 +1,7 @@
 # Simple HTTP Server
 
-This is my first C project, a simple HTTP server.
-It was developed in a Linux environment.
+The obligatory systems project, a simple HTTP server written in C.
+It was developed in a Linux environment, therefore uses POSIX sockets for network operations.
 
 ## Project Structure
 
@@ -14,6 +14,12 @@ To build the project, run the following command:
 
 ```sh
 make
+```
+
+You can delete compiled binaries with:
+
+```sh
+make clean
 ```
 
 ## How to Run
@@ -43,14 +49,8 @@ I am aiming for a "live server" equivalent and plan for additional features:
   - Test if the server can serve files from a specified directory (e.g., HTML, CSS, and JavaScript files).
   - Verify that the server handles paths correctly (e.g., index.html for /).
 
-- Hot Reloading
-Test if the server detects file changes and updates responses dynamically.
-
 - Error Pages
 Verify that the server serves custom error pages (e.g., 404.html for not found errors).
-
-- Concurrency
-Test how the server handles multiple concurrent requests.
 
 - Cross-Browser Compatibility
 Test the server's behavior with requests from different browsers or tools (e.g., curl, Postman, Chrome).
@@ -58,4 +58,4 @@ Test the server's behavior with requests from different browsers or tools (e.g.,
 
 ## License
 
-This project is licensed under the MIT License.
+This project is licensed under the AGPL-3.0 license.

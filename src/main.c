@@ -1,7 +1,5 @@
 // Routing the program to the server
 
-#include <stdlib.h>
-#include <stdio.h>
 #include "server.h"
 
 int main() {

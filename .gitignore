@@ -1,4 +1,3 @@
 # ignore compiled binaries
-server.o
-main.o
+*.o
 http_server
