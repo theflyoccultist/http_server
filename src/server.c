@@ -13,17 +13,20 @@
 #define PORT 8080
 
 void start_server() {
-  int server_fd, new_socket;
+  int server_fd, client_fd;
 
   struct sockaddr_in server_addr, client_addr; // server and client addresses
   socklen_t addr_len = sizeof(client_addr);    // address length
   char buffer[1024] = {0};                     // buffer for data
   // response message
-  const char *hello = "HTTP/1.1 200 OK\nContent-Type: "
-                      "text/plain\nContent-Length: 10\n\nPwat Pwat\n";
+  const char *hello = "HTTP/1.1 200 OK\r\n"
+                      "Content-Type: text/plain\n"
+                      "Content-Length: 10\n\n"
+                      "Pwat Pwat\n";
 
   // Create server socket
-  if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+  server_fd = socket(AF_INET, SOCK_STREAM, 0);
+  if (server_fd < 0) {
     perror("socket failed");
     exit(EXIT_FAILURE);
   }
@@ -50,21 +53,22 @@ void start_server() {
   printf("Server is listening on port %d\n", PORT);
 
   // accept connection
-  while ((new_socket = accept(server_fd, (struct sockaddr *)&client_addr,
-                              &addr_len)) != -1) {
-    int valread = recv(new_socket, buffer, sizeof(buffer) - 1, 0);
+  while (1) {
+    client_fd = accept(server_fd, (struct sockaddr *)&client_addr, &addr_len);
+    int valread = recv(client_fd, buffer, sizeof(buffer) - 1, 0);
+
     if (valread > 0) {
       buffer[valread] = '\0';
       printf("Recieved: %s\n", buffer);
-      send(new_socket, hello, strlen(hello), 0);
+      send(client_fd, hello, strlen(hello), 0);
       printf("Message sent\n");
     } else {
       printf("No data recieved\n");
     }
-    close(new_socket);
+    close(client_fd);
   }
 
-  if (new_socket == -1) {
+  if (client_fd == -1) {
     perror("accept failed");
     close(server_fd);
     exit(EXIT_FAILURE);
