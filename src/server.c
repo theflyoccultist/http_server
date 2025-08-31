@@ -15,7 +15,6 @@
 struct sockaddr_in server_addr, client_addr; // server and client addresses
 
 int create_server_socket(int port) {
-  // Config socket
   server_addr.sin_family = AF_INET;         // IPv4
   server_addr.sin_addr.s_addr = INADDR_ANY; // localhost
   server_addr.sin_port = htons(port);
@@ -28,7 +27,6 @@ void handle_client(int client_fd, const char *file_path) {
   char request_buf[1024];
   int valread = recv(client_fd, request_buf, sizeof(request_buf) - 1, 0);
 
-  // handle client
   if (valread > 0) {
     request_buf[valread] = '\0';
     printf("Recieved: %s\n", request_buf);
@@ -38,14 +36,10 @@ void handle_client(int client_fd, const char *file_path) {
 }
 
 void start_server() {
-  socklen_t addr_len = sizeof(client_addr); // address length
+  socklen_t server_len = sizeof(server_addr);
+  socklen_t addr_len = sizeof(client_addr);
 
-  // response message
-  const char *hello = "HTTP/1.1 200 OK\r\n"
-                      "Content-Type: text/plain\n"
-                      "Content-Length: 10\n\n"
-                      "Pwat Pwat\n";
-
+  // Make socket
   int server_fd = create_server_socket(PORT);
   if (server_fd < 0) {
     perror("Failed to create socket");
@@ -53,9 +47,8 @@ void start_server() {
   }
 
   // bind socket to port
-  if (bind(server_fd, (struct sockaddr *)&server_addr, sizeof(server_addr)) ==
-      -1) {
-    perror("bind failed");
+  if (bind(server_fd, (struct sockaddr *)&server_addr, server_len) == -1) {
+    perror("Bind failed");
     exit(EXIT_FAILURE);
   }
 
@@ -68,11 +61,23 @@ void start_server() {
 
   printf("Server is listening on port %d\n", PORT);
 
-  // accept connection
+  // response message
+  const char *hello = "HTTP/1.1 200 OK\r\n"
+                      "Content-Type: text/plain\r\n"
+                      "Content-Length: 10\r\n"
+                      "\r\n"
+                      "Pwat Pwat\n";
+
   while (1) {
+    // accept connection
     int client_fd =
         accept(server_fd, (struct sockaddr *)&client_addr, &addr_len);
+    if (client_fd < 0) {
+      perror("Accept failed");
+      continue;
+    }
 
+    // handle connection
     handle_client(client_fd, hello);
     close(client_fd);
   }
