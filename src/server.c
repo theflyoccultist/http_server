@@ -12,29 +12,41 @@
 
 #define PORT 8080
 
+void handle_client(int client_fd, const char *file_path) {
+  char request_buf[1024];
+  int valread = recv(client_fd, request_buf, sizeof(request_buf) - 1, 0);
+
+  // handle client
+  if (valread > 0) {
+    request_buf[valread] = '\0';
+    printf("Recieved: %s\n", request_buf);
+    send(client_fd, file_path, strlen(file_path), 0);
+    printf("Message sent\n");
+  }
+}
+
 void start_server() {
   int server_fd, client_fd;
 
   struct sockaddr_in server_addr, client_addr; // server and client addresses
   socklen_t addr_len = sizeof(client_addr);    // address length
-  char buffer[1024] = {0};                     // buffer for data
+
   // response message
   const char *hello = "HTTP/1.1 200 OK\r\n"
                       "Content-Type: text/plain\n"
                       "Content-Length: 10\n\n"
                       "Pwat Pwat\n";
 
-  // Create server socket
-  server_fd = socket(AF_INET, SOCK_STREAM, 0);
-  if (server_fd < 0) {
-    perror("socket failed");
-    exit(EXIT_FAILURE);
-  }
-
   // Config socket
   server_addr.sin_family = AF_INET;         // IPv4
   server_addr.sin_addr.s_addr = INADDR_ANY; // localhost
   server_addr.sin_port = htons(PORT);       // port
+
+  server_fd = socket(AF_INET, SOCK_STREAM, 0);
+  if (server_fd < 0) {
+    perror("Failed to create socket");
+    exit(EXIT_FAILURE);
+  }
 
   // bind socket to port
   if (bind(server_fd, (struct sockaddr *)&server_addr, sizeof(server_addr)) ==
@@ -55,23 +67,9 @@ void start_server() {
   // accept connection
   while (1) {
     client_fd = accept(server_fd, (struct sockaddr *)&client_addr, &addr_len);
-    int valread = recv(client_fd, buffer, sizeof(buffer) - 1, 0);
 
-    if (valread > 0) {
-      buffer[valread] = '\0';
-      printf("Recieved: %s\n", buffer);
-      send(client_fd, hello, strlen(hello), 0);
-      printf("Message sent\n");
-    } else {
-      printf("No data recieved\n");
-    }
+    handle_client(client_fd, hello);
     close(client_fd);
-  }
-
-  if (client_fd == -1) {
-    perror("accept failed");
-    close(server_fd);
-    exit(EXIT_FAILURE);
   }
 
   close(server_fd);
