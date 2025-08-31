@@ -1,5 +1,3 @@
-// Socket server implementation
-
 #include "server.h"
 #include <stdio.h>
 #include <stdlib.h>
