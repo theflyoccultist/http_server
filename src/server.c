@@ -12,6 +12,18 @@
 
 #define PORT 8080
 
+struct sockaddr_in server_addr, client_addr; // server and client addresses
+
+int create_server_socket(int port) {
+  // Config socket
+  server_addr.sin_family = AF_INET;         // IPv4
+  server_addr.sin_addr.s_addr = INADDR_ANY; // localhost
+  server_addr.sin_port = htons(port);
+
+  int server_fd = socket(AF_INET, SOCK_STREAM, 0);
+  return server_fd;
+}
+
 void handle_client(int client_fd, const char *file_path) {
   char request_buf[1024];
   int valread = recv(client_fd, request_buf, sizeof(request_buf) - 1, 0);
@@ -26,10 +38,7 @@ void handle_client(int client_fd, const char *file_path) {
 }
 
 void start_server() {
-  int server_fd, client_fd;
-
-  struct sockaddr_in server_addr, client_addr; // server and client addresses
-  socklen_t addr_len = sizeof(client_addr);    // address length
+  socklen_t addr_len = sizeof(client_addr); // address length
 
   // response message
   const char *hello = "HTTP/1.1 200 OK\r\n"
@@ -37,12 +46,7 @@ void start_server() {
                       "Content-Length: 10\n\n"
                       "Pwat Pwat\n";
 
-  // Config socket
-  server_addr.sin_family = AF_INET;         // IPv4
-  server_addr.sin_addr.s_addr = INADDR_ANY; // localhost
-  server_addr.sin_port = htons(PORT);       // port
-
-  server_fd = socket(AF_INET, SOCK_STREAM, 0);
+  int server_fd = create_server_socket(PORT);
   if (server_fd < 0) {
     perror("Failed to create socket");
     exit(EXIT_FAILURE);
@@ -66,7 +70,8 @@ void start_server() {
 
   // accept connection
   while (1) {
-    client_fd = accept(server_fd, (struct sockaddr *)&client_addr, &addr_len);
+    int client_fd =
+        accept(server_fd, (struct sockaddr *)&client_addr, &addr_len);
 
     handle_client(client_fd, hello);
     close(client_fd);
