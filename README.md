@@ -6,7 +6,10 @@ It was developed in a Linux environment, therefore uses POSIX sockets for networ
 ## Project Structure
 
 - `server.c`: Contains the socket implementation.
+- `html_file.c`: A separate program to read / free HTML files.
 - `main.c`: Connects the C files together.
+- `run_server.sh`: A simple Bash script wrapper to load files into the server.
+- `public/`: A folder containing a simple HTML / CSS / JS example website. Feel free to replace it with your own files.
 
 ## How to Build
 
@@ -26,8 +29,8 @@ make clean
 
 To run the server, use the following command:
 
-```sh
-./http_server
+```bash
+bash run_server.sh public/test.html
 ```
 
 In a separate terminal, you can use the following command to test the server:
@@ -42,16 +45,6 @@ Or open your browser with the address `http://localhost:8080`.
 
 - Basic HTTP request handling
 - It will simply serve your HTML file on `localhost:8080`, nothing more, nothing less
-
-## Future Features
-
-I am aiming for a "live server" equivalent and plan for additional features:
-
-- Serving Static Files
-  - Test if the server can serve files from a specified directory (e.g., HTML, CSS, and JavaScript files).
-
-- Cross-Browser Compatibility
-Test the server's behavior with requests from different browsers or tools (e.g., curl, Postman, Chrome).
 
 
 ## License

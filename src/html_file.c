@@ -7,19 +7,19 @@ struct html_file read_file(const char *path) {
 
   FILE *fp = fopen(path, "rb");
   if (!fp) {
-    perror("fopen");
+    perror("fopen error");
     return hf;
   }
 
   if (fseek(fp, 0, SEEK_END) != 0) {
-    perror("fseek");
+    perror("fseek error");
     fclose(fp);
     return hf;
   }
 
   hf.filesize = ftell(fp);
   if (hf.filesize < 0) {
-    perror("ftell");
+    perror("ftell error");
     fclose(fp);
     return hf;
   }
@@ -28,14 +28,14 @@ struct html_file read_file(const char *path) {
 
   hf.file_buffer = malloc(hf.filesize);
   if (!hf.file_buffer) {
-    perror("malloc");
+    perror("malloc error");
     fclose(fp);
     hf.filesize = 0;
     return hf;
   }
 
   if (fread(hf.file_buffer, 1, hf.filesize, fp) < hf.filesize) {
-    perror("fread");
+    perror("fread error");
     free(hf.file_buffer);
     hf.file_buffer = NULL;
     hf.filesize = 0;

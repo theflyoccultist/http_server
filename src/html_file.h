@@ -1,8 +1,10 @@
 #ifndef HTML_FILE_H
 #define HTML_FILE_H
 
+#include <stddef.h>
+
 struct html_file {
-  long filesize;
+  size_t filesize;
   char *file_buffer;
 };
 

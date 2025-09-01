@@ -1,7 +1,8 @@
 #include "server.h"
+#include "html_file.h"
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 #include <arpa/inet.h>
 #include <netinet/in.h>
@@ -21,14 +22,22 @@ int create_server_socket(int port) {
   return server_fd;
 }
 
-void handle_client(int client_fd, const char *file_path) {
+void handle_client(int client_fd, const char *file_path, size_t filesize) {
   char request_buf[1024];
   int valread = recv(client_fd, request_buf, sizeof(request_buf) - 1, 0);
+
+  // response message
+  dprintf(client_fd,
+          "HTTP/1.1 200 OK\r\n"
+          "Content-Type: text/html\r\n"
+          "Content-Length: %ld\r\n"
+          "\r\n",
+          filesize);
 
   if (valread > 0) {
     request_buf[valread] = '\0';
     printf("Recieved: %s\n", request_buf);
-    send(client_fd, file_path, strlen(file_path), 0);
+    write(client_fd, file_path, filesize);
     printf("Message sent\n");
   }
 }
@@ -57,14 +66,15 @@ void start_server() {
     exit(EXIT_FAILURE);
   }
 
-  printf("Server is listening on port %d\n", PORT);
+  struct html_file page = read_file(getenv("HTML_PAGE"));
+  if (!page.file_buffer) {
+    perror("HTML page could not be loaded");
+    close(server_fd);
+    exit(EXIT_FAILURE);
+  }
 
-  // response message
-  const char *hello = "HTTP/1.1 200 OK\r\n"
-                      "Content-Type: text/plain\r\n"
-                      "Content-Length: 10\r\n"
-                      "\r\n"
-                      "Pwat Pwat\n";
+  printf("Server is listening on port %d\n", PORT);
+  printf("(Press CTRL + C to quit)\n");
 
   while (1) {
     // accept connection
@@ -76,9 +86,10 @@ void start_server() {
     }
 
     // handle connection
-    handle_client(client_fd, hello);
+    handle_client(client_fd, page.file_buffer, page.filesize);
     close(client_fd);
   }
 
+  free_file(&page);
   close(server_fd);
 }
