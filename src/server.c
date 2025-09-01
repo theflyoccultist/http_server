@@ -1,5 +1,7 @@
 #include "server.h"
 #include "html_file.h"
+#include "mime_types.h"
+#include <magic.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -22,17 +24,20 @@ int create_server_socket(int port) {
   return server_fd;
 }
 
-void handle_client(int client_fd, const char *file_path, size_t filesize) {
+void handle_client(int client_fd, const char *file_path, size_t filesize,
+                   magic_t magic) {
   char request_buf[1024];
   int valread = recv(client_fd, request_buf, sizeof(request_buf) - 1, 0);
+
+  const char *mime = get_mime_type(magic, file_path);
 
   // response message
   dprintf(client_fd,
           "HTTP/1.1 200 OK\r\n"
-          "Content-Type: text/html\r\n"
+          "Content-Type: %s\r\n"
           "Content-Length: %ld\r\n"
           "\r\n",
-          filesize);
+          mime, filesize);
 
   if (valread > 0) {
     request_buf[valread] = '\0';
@@ -76,6 +81,10 @@ void start_server() {
   printf("Server is listening on port %d\n", PORT);
   printf("(Press CTRL + C to quit)\n");
 
+  magic_t magic = init_magic();
+  if (!magic)
+    exit(EXIT_FAILURE);
+
   while (1) {
     // accept connection
     int client_fd =
@@ -86,10 +95,10 @@ void start_server() {
     }
 
     // handle connection
-    handle_client(client_fd, page.file_buffer, page.filesize);
+    handle_client(client_fd, page.file_buffer, page.filesize, magic);
     close(client_fd);
   }
-
   free_file(&page);
+  free_mime(magic);
   close(server_fd);
 }

@@ -1,5 +1,3 @@
-// Routing the program to the server
-
 #include "server.h"
 
 int main() {

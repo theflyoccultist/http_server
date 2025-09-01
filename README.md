@@ -5,9 +5,11 @@ It was developed in a Linux environment, therefore uses POSIX sockets for networ
 
 ## Project Structure
 
-- `server.c`: Contains the socket implementation.
-- `html_file.c`: A separate program to read / free HTML files.
-- `main.c`: Connects the C files together.
+- `src/server.c`: Contains the socket implementation.
+- `src/html_file.c`: A separate program to read / free HTML files from memory.
+- `src/mime_types.c`: Using the `magic.h` library, this file allows the server to output the correct type of content of a file.
+- `src/main.c`: Connects the C files together.
+
 - `run_server.sh`: A simple Bash script wrapper to load files into the server.
 - `public/`: A folder containing a simple HTML / CSS / JS example website. Feel free to replace it with your own files.
 
