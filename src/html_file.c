@@ -18,7 +18,7 @@ struct html_file read_file(const char *path) {
   }
 
   hf.filesize = ftell(fp);
-  if (hf.filesize < 0) {
+  if (!hf.filesize) {
     perror("ftell error");
     fclose(fp);
     return hf;
