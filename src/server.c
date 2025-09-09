@@ -8,6 +8,7 @@
 
 #include <arpa/inet.h>
 #include <netinet/in.h>
+#include <string.h>
 #include <sys/socket.h>
 #include <unistd.h>
 
@@ -24,27 +25,55 @@ int create_server_socket(int port) {
   return server_fd;
 }
 
-void handle_client(int client_fd, const char *file_path, size_t filesize,
-                   magic_t magic) {
-  char request_buf[1024];
-  int valread = recv(client_fd, request_buf, sizeof(request_buf) - 1, 0);
+char *resolve_path(char *request_path) {
+  static char filepath[2048];
 
-  const char *mime = get_mime_type(magic, file_path);
+  if (strcmp(request_path, "/") == 0) {
+    strcpy(request_path, "/index.html");
+  }
+
+  snprintf(filepath, sizeof(filepath), "public%s", request_path);
+  return filepath;
+}
+
+void handle_client(int client_fd, magic_t magic) {
+  char request_buf[1024];
+  recv(client_fd, request_buf, sizeof(request_buf) - 1, 0);
+
+  char method[8], path[1024], version[16];
+  sscanf(request_buf, "%7s %1023s %15s", method, path, version);
+
+  char *filepath = resolve_path(path);
+  struct html_file page = read_file(filepath);
+
+  if (!page.file_buffer) {
+    perror("File could not be loaded");
+    dprintf(client_fd, "HTTP/1.1 404 Not Found\r\n"
+                       "Content-Type: text/plain\r\n"
+                       "Content-Length: 13\r\n"
+                       "\r\n"
+                       "404 Not Found\n");
+    return;
+  }
+
+  const char *mime = get_mime_type(magic, filepath);
+
+  if (strstr(filepath, ".css"))
+    mime = "text/css";
+
+  if (strstr(filepath, ".js"))
+    mime = "application/javascript";
 
   // response message
   dprintf(client_fd,
           "HTTP/1.1 200 OK\r\n"
           "Content-Type: %s\r\n"
-          "Content-Length: %ld\r\n"
+          "Content-Length: %zu\r\n"
           "\r\n",
-          mime, filesize);
+          mime, page.filesize);
 
-  if (valread > 0) {
-    request_buf[valread] = '\0';
-    printf("Recieved: %s\n", request_buf);
-    write(client_fd, file_path, filesize);
-    printf("Message sent\n");
-  }
+  write(client_fd, page.file_buffer, page.filesize);
+  free_file(&page);
 }
 
 void start_server() {
@@ -71,13 +100,6 @@ void start_server() {
     exit(EXIT_FAILURE);
   }
 
-  struct html_file page = read_file(getenv("HTML_PAGE"));
-  if (!page.file_buffer) {
-    perror("HTML page could not be loaded");
-    close(server_fd);
-    exit(EXIT_FAILURE);
-  }
-
   printf("Server is listening on port %d\n", PORT);
   printf("(Press CTRL + C to quit)\n");
 
@@ -95,10 +117,9 @@ void start_server() {
     }
 
     // handle connection
-    handle_client(client_fd, page.file_buffer, page.filesize, magic);
+    handle_client(client_fd, magic);
     close(client_fd);
   }
-  free_file(&page);
   free_mime(magic);
   close(server_fd);
 }

@@ -2,19 +2,20 @@
 #include <stdio.h>
 
 magic_t init_magic() {
-  magic_t magic = magic_open(MAGIC_MIME_TYPE);
-  if (!magic) {
-    perror("magic_open error");
+  magic_t magic_cookie = magic_open(MAGIC_MIME_TYPE);
+  if (magic_cookie == NULL) {
+    printf("Unable to initialize magic library\n");
     return NULL;
   }
 
-  if (magic_load(magic, NULL) != 0) {
-    fprintf(stderr, "magic_load failed: %s\n", magic_error(magic));
-    magic_close(magic);
+  if (magic_load(magic_cookie, NULL) != 0) {
+    fprintf(stderr, "Cannot load magic database: %s\n",
+            magic_error(magic_cookie));
+    magic_close(magic_cookie);
     return NULL;
   }
 
-  return magic;
+  return magic_cookie;
 }
 
 const char *get_mime_type(magic_t magic, const char *path) {
