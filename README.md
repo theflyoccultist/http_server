@@ -3,6 +3,8 @@
 The obligatory systems project, a simple HTTP server written in C.
 It was developed in a Linux environment, therefore uses POSIX sockets for network operations.
 
+![Preview](./public/preview.png)
+
 ## Project Structure
 
 - `src/server.c`: Contains the socket implementation.
