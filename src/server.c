@@ -46,6 +46,7 @@ void handle_client(int client_fd, magic_t magic) {
   char *filepath = resolve_path(path);
   struct html_file page = read_file(filepath);
 
+  // error handling
   if (!page.file_buffer) {
     perror("File could not be loaded");
     dprintf(client_fd, "HTTP/1.1 404 Not Found\r\n"
@@ -71,6 +72,9 @@ void handle_client(int client_fd, magic_t magic) {
           "Content-Length: %zu\r\n"
           "\r\n",
           mime, page.filesize);
+
+  // log served files
+  printf("[%s] %s -> %s (%zu bytes)\n", method, path, mime, page.filesize);
 
   write(client_fd, page.file_buffer, page.filesize);
   free_file(&page);

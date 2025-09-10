@@ -1,9 +1,12 @@
 body {
-  background-color: #000000;
+  background-color: #25002E;
 }
-h1 {
+h1, p, .page-links {
   text-align: center;
   color: #FFFFFF;
+}
+a {
+  color: #EEA3FF;
 }
 .pwat-img, button {
   width: 60%;

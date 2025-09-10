@@ -11,6 +11,13 @@ It was developed in a Linux environment, therefore uses POSIX sockets for networ
 - `src/main.c`: Connects the C files together.
 - `public/`: A folder containing a simple HTML / CSS / JS example website. Feel free to replace its contents with your own files.
 
+## Features
+
+- Basic HTTP `GET` request handling
+- Support for HTML, CSS and JS files
+- Support for multiple routes, and error handling with a 404 page
+- Logs served files onto the console
+
 ## How to Build
 
 To build the project, run the following command:
@@ -40,11 +47,6 @@ Finally, you can delete compiled binaries with:
 ```sh
 make clean
 ```
-
-## Features
-
-- Basic HTTP request handling
-- It will simply serve your HTML / CSS / JS files on `localhost:8080`, nothing more, nothing less
 
 
 ## License
